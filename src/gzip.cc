@@ -103,6 +103,7 @@ class GzipImpl {
     HandleScope scope;
 
     int level = Z_DEFAULT_COMPRESSION;
+    int wbits = 16 + MAX_WBITS;
     if (args.Length() > 0 && !args[0]->IsUndefined()) {
       if (!args[0]->IsInt32()) {
         Local<Value> exception = Exception::TypeError(
@@ -112,12 +113,21 @@ class GzipImpl {
       level = args[0]->Int32Value();
     }
 
+    if (args.Length() > 1 && !args[1]->IsUndefined()) {
+      if (!args[1]->IsInt32()) {
+        Local<Value> exception = Exception::TypeError(
+            String::New("wbits must be an integer"));
+        return ThrowException(exception);
+      }
+      level = args[1]->Int32Value();
+    }
+
     stream_.zalloc = Z_NULL;
     stream_.zfree = Z_NULL;
     stream_.opaque = Z_NULL;
 
     int ret = deflateInit2(&stream_, level,
-                           Z_DEFLATED, 16 + MAX_WBITS, 8, Z_DEFAULT_STRATEGY);
+                           Z_DEFLATED, wbits, 8, Z_DEFAULT_STRATEGY);
     if (Utils::IsError(ret)) {
       return ThrowException(Utils::GetException(ret));
     }
@@ -182,7 +192,17 @@ class GunzipImpl {
     stream_.avail_in = 0;
     stream_.next_in = Z_NULL;
 
-    int ret = inflateInit2(&stream_, 16 + MAX_WBITS);
+    int wbits = 16 + MAX_WBITS;
+    if (args.Length() > 0 && !args[0]->IsUndefined()) {
+      if (!args[0]->IsInt32()) {
+        Local<Value> exception = Exception::TypeError(
+            String::New("wbits must be an integer"));
+        return ThrowException(exception);
+      }
+      wbits = args[0]->Int32Value();
+    }
+
+    int ret = inflateInit2(&stream_, wbits);
     if (Utils::IsError(ret)) {
       return ThrowException(Utils::GetException(ret));
     }

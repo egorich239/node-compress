@@ -119,7 +119,7 @@ class GzipImpl {
             String::New("wbits must be an integer"));
         return ThrowException(exception);
       }
-      level = args[1]->Int32Value();
+      wbits = args[1]->Int32Value();
     }
 
     stream_.zalloc = Z_NULL;

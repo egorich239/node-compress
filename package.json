@@ -10,8 +10,5 @@
   "engine": [ "node >=0.1.90" ],
   "directories": {
     "lib": "./lib/compress"
-  },
-  "scripts": {
-    "install": "./build.sh"
   }
 }

@@ -1,10 +1,17 @@
 import Options
 from os import unlink, symlink, popen
 from os.path import exists 
+from shutil import copy2 as copy
 
 srcdir = "."
 blddir = "build"
 VERSION = "0.1.10"
+
+TARGET = 'compress-bindings'
+TARGET_FILE = '%s.node' % TARGET
+built = 'build/default/%s' % TARGET_FILE
+dest = 'lib/compress/%s' % TARGET_FILE
+
 
 def set_options(opt):
   opt.tool_options("compiler_cxx")
@@ -46,7 +53,16 @@ def configure(conf):
 def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
   obj.cxxflags = ["-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-Wall"]
-  obj.target = "compress-bindings"
+  obj.target = TARGET
   obj.source = "src/compress.cc"
   obj.defines = bld.env.DEFINES
   obj.uselib = bld.env.USELIB
+
+
+def shutdown():
+  if Options.commands['clean']:
+      if exists(dest):
+          unlink(dest)
+  else:
+      if exists(built):
+          copy(built, dest)

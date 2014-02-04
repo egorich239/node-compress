@@ -31,6 +31,7 @@
 #include <node.h>
 #include <node_events.h>
 #include <node_buffer.h>
+#include <node_version.h>
 #include <assert.h>
 
 #include "utils.h"
@@ -85,8 +86,13 @@ class ZipLib : ObjectWrap {
     Request(ZipLib *self, Local<Value> inputBuffer, Local<Function> callback)
       : kind_(RWrite), self_(self),
       buffer_(Persistent<Value>::New(inputBuffer)),
+#if NODE_VERSION_AT_LEAST(0,3,0)
+      data_(Buffer::Data(inputBuffer->ToObject())),
+      length_(Buffer::Length(inputBuffer->ToObject())),
+#else
       data_(GetBuffer(inputBuffer)->data()),
       length_(GetBuffer(inputBuffer)->length()),
+#endif
       callback_(Persistent<Function>::New(callback))
     {}
     
@@ -109,9 +115,12 @@ class ZipLib : ObjectWrap {
       }
     }
 
+#if NODE_VERSION_AT_LEAST(0,3,0)
+#else
     static Buffer *GetBuffer(Local<Value> buffer) {
-      return ObjectWrap::Unwrap<Buffer>(buffer->ToObject());
+       return ObjectWrap::Unwrap<Buffer>(buffer->ToObject());
     }
+#endif
 
    public:
     static Request* Write(Self *self, Local<Value> inputBuffer,

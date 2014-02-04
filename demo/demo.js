@@ -60,7 +60,7 @@ function createBuffer(str, enc) {
 
 
 // Create gzip stream
-var gzip = new compress.Gzip(4);
+var gzip = new compress.Gzip(4, 16 + MAX_WBITS);
 sys.puts('gzip created');
 
 // Pump data to be compressed

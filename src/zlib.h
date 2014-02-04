@@ -85,8 +85,8 @@ class ZipLib : ObjectWrap {
     Request(ZipLib *self, Local<Value> inputBuffer, Local<Function> callback)
       : kind_(RWrite), self_(self),
       buffer_(Persistent<Value>::New(inputBuffer)),
-      data_(GetBuffer(inputBuffer)->data()),
-      length_(GetBuffer(inputBuffer)->length()),
+      data_(Buffer::Data(inputBuffer->ToObject())),
+      length_(Buffer::Length(inputBuffer->ToObject())),
       callback_(Persistent<Function>::New(callback))
     {}
     
@@ -107,10 +107,6 @@ class ZipLib : ObjectWrap {
       if (!callback_.IsEmpty()) {
         callback_.Dispose();
       }
-    }
-
-    static Buffer *GetBuffer(Local<Value> buffer) {
-      return ObjectWrap::Unwrap<Buffer>(buffer->ToObject());
     }
 
    public:
